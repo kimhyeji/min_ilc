@@ -212,57 +212,83 @@ $('footer .f-top .site').click(function(){
 
 
 
+
 // section-3
-const $cards = $('.s-3_info .card');
-const $trigger = $('.s-3_info');
-    
+const $cards    = $('.s-3_info .card');
+const $trigger  = $('.s-3_info');
+
 gsap.registerPlugin(ScrollTrigger);
 
-// ScrollTrigger와 smooth-scrollbar 연동
+// ── smooth-scrollbar 연동 ──
 ScrollTrigger.scrollerProxy($scroller[0], {
-scrollTop(value) {
-    if (arguments.length) {
-    bodyScrollBar.scrollTop = value;
-    }
+  scrollTop(value) {
+    if (arguments.length) bodyScrollBar.scrollTop = value;
     return bodyScrollBar.scrollTop;
-},
-getBoundingClientRect() {
+  },
+  getBoundingClientRect() {
     return {
-    top: 0,
-    left: 0,
-    width: window.innerWidth,
-    height: window.innerHeight
+      top:    0,
+      left:   0,
+      width:  window.innerWidth,
+      height: window.innerHeight
     };
-}
+  }
 });
-
 bodyScrollBar.addListener(ScrollTrigger.update);
 ScrollTrigger.defaults({ scroller: $scroller[0] });
 
-// 카드 스택 애니메이션 타임라인
+// ── 카드 스택 애니메이션 ──
 const animation = gsap.timeline();
-
-$cards.each(function (index) {
-if (index > 0) {
-    gsap.set(this, { y: index * 900 });
+$cards.each(function(i) {
+  if (i > 0) {
+    gsap.set(this, { y: i * 900 });
     animation.to(this, {
-    y: 0,
-    duration: index * 0.3,
-    ease: "none"
-    }, 0); // 동시에 실행되도록
-}
+      y:       0,
+      duration: i * 0.3,
+      ease:     'none'
+    }, 0);
+  }
 });
 
-// ScrollTrigger 생성
+// ── 메인 ScrollTrigger (pin & scrub) ──
 ScrollTrigger.create({
-    trigger: $trigger,
-    start: "top top",
-    end: `+=${$cards.length * 900}`,
-    scrub: true,
-    pin: true,
-    animation: animation,
-    markers: true,
-    scroller: $scroller[0]
+  trigger:   $trigger,
+  start:     'top top',
+  end:       `+=${$cards.length * 900}`,
+  scrub:     true,
+  pin:       true,
+  animation: animation,
+  markers:   true,
+  scroller:  $scroller[0]
+});
+
+// ── .text-box 중앙 고정용 CSS (필수) ──
+// .text-box {
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+//   pointer-events: none;
+// }
+
+// ── 카드별 .text-box fade-in / fade-out ──
+$cards.each(function(i) {
+  const card = this;
+  // 같은 <li> 안에 있는 .text-box 선택
+  const $txt = $(card).siblings('.text-box');
+
+  // 초기 설정: 첫 카드만 보이고 나머진 숨김
+  gsap.set($txt, { opacity: i === 0 ? 1 : 0 });
+
+  ScrollTrigger.create({
+    trigger:   card,
+    start:     'center center',
+    onEnter:      () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
+    onEnterBack:  () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
+    onLeave:      () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' }),
+    onLeaveBack:  () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' }),
+    scroller:     $scroller[0]
+  });
 });
 
 ScrollTrigger.refresh();

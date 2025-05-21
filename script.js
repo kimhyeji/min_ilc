@@ -217,9 +217,14 @@ $('footer .f-top .site').click(function(){
 const $cards   = $('.s-3_info .card');
 const $trigger = $('.s-3_info');
 
+const $textBoxes = $('.s-3_info li .text-box');
+$textBoxes.css({ opacity: 0 });
+$textBoxes.first().css({ opacity: 1 });
+
+// GSAP 등록
 gsap.registerPlugin(ScrollTrigger);
 
-// ── smooth-scrollbar 연동 ──
+// smooth-scrollbar 연동
 ScrollTrigger.scrollerProxy($scroller[0], {
   scrollTop(value) {
     if (arguments.length) bodyScrollBar.scrollTop = value;
@@ -237,7 +242,7 @@ ScrollTrigger.scrollerProxy($scroller[0], {
 bodyScrollBar.addListener(ScrollTrigger.update);
 ScrollTrigger.defaults({ scroller: $scroller[0] });
 
-// ── 카드 스택 애니메이션 ──
+// 카드 스택 애니메이션
 const animation = gsap.timeline();
 $cards.each(function(i) {
   if (i > 0) {
@@ -250,7 +255,7 @@ $cards.each(function(i) {
   }
 });
 
-// ── 메인 ScrollTrigger (pin & scrub) ──
+// 메인 ScrollTrigger (pin & scrub)
 ScrollTrigger.create({
   trigger:   $trigger,
   start:     'top top',
@@ -262,23 +267,31 @@ ScrollTrigger.create({
   scroller:  $scroller[0]
 });
 
-$cards.each(function(i, card) {
-  const $txt = $(card).closest('li').find('.text-box');
+// 카드가 이전 카드의 중앙을 지날 때 텍스트 전환 (정확한 동작)
+bodyScrollBar.addListener(() => {
+  let activeIndex = 0;
 
-  // 첫 번째 카드만 로딩 시 보이기
-  gsap.set($txt, { opacity: i === 0 ? 1 : 0 });
+  for (let i = 1; i < $cards.length; i++) {
+    const prevCard = $cards[i - 1];
+    const prevRect = prevCard.getBoundingClientRect();
+    const prevCenter = prevRect.top + prevRect.height / 2;
 
-  // 카드가 중앙에 진입하면 fade-in, 벗어나면 fade-out
-  ScrollTrigger.create({
-    trigger:   card,
-    start:     'top center',
-    end:       'bottom center',
-    scrub:     false,
-    scroller:  $scroller[0],
-    onEnter:      () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
-    onLeave:      () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' }),
-    onEnterBack:  () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
-    onLeaveBack:  () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' })
+    const currCard = $cards[i];
+    const currRect = currCard.getBoundingClientRect();
+
+    if (currRect.top <= prevCenter) {
+      activeIndex = i;
+    } else {
+      break;
+    }
+  }
+
+  $textBoxes.each((i, el) => {
+    gsap.to(el, {
+      opacity: i === activeIndex ? 1 : 0,
+      duration: 0.3,
+      ease: 'power1.out'
+    });
   });
 });
 

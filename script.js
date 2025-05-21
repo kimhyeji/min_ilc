@@ -214,8 +214,8 @@ $('footer .f-top .site').click(function(){
 
 
 // section-3
-const $cards    = $('.s-3_info .card');
-const $trigger  = $('.s-3_info');
+const $cards   = $('.s-3_info .card');
+const $trigger = $('.s-3_info');
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -241,11 +241,11 @@ ScrollTrigger.defaults({ scroller: $scroller[0] });
 const animation = gsap.timeline();
 $cards.each(function(i) {
   if (i > 0) {
-    gsap.set(this, { y: i * 900 });
+    gsap.set(this, { y: i * 920 });
     animation.to(this, {
       y:       0,
       duration: i * 0.3,
-      ease:     'none'
+      ease:     'power1.in'
     }, 0);
   }
 });
@@ -254,40 +254,31 @@ $cards.each(function(i) {
 ScrollTrigger.create({
   trigger:   $trigger,
   start:     'top top',
-  end:       `+=${$cards.length * 900}`,
+  end:       `+=${$cards.length * 920}`,
   scrub:     true,
   pin:       true,
   animation: animation,
-  markers:   true,
+  ease:     'power1.in',
   scroller:  $scroller[0]
 });
 
-// ── .text-box 중앙 고정용 CSS (필수) ──
-// .text-box {
-//   position: absolute;
-//   top: 50%;
-//   left: 50%;
-//   transform: translate(-50%, -50%);
-//   pointer-events: none;
-// }
+$cards.each(function(i, card) {
+  const $txt = $(card).closest('li').find('.text-box');
 
-// ── 카드별 .text-box fade-in / fade-out ──
-$cards.each(function(i) {
-  const card = this;
-  // 같은 <li> 안에 있는 .text-box 선택
-  const $txt = $(card).siblings('.text-box');
-
-  // 초기 설정: 첫 카드만 보이고 나머진 숨김
+  // 첫 번째 카드만 로딩 시 보이기
   gsap.set($txt, { opacity: i === 0 ? 1 : 0 });
 
+  // 카드가 중앙에 진입하면 fade-in, 벗어나면 fade-out
   ScrollTrigger.create({
     trigger:   card,
-    start:     'center center',
+    start:     'top center',
+    end:       'bottom center',
+    scrub:     false,
+    scroller:  $scroller[0],
     onEnter:      () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
-    onEnterBack:  () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
     onLeave:      () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' }),
-    onLeaveBack:  () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' }),
-    scroller:     $scroller[0]
+    onEnterBack:  () => gsap.to($txt, { opacity: 1, duration: 0.4, ease: 'power1.out' }),
+    onLeaveBack:  () => gsap.to($txt, { opacity: 0, duration: 0.4, ease: 'power1.in' })
   });
 });
 

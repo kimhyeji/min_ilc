@@ -716,6 +716,14 @@ img {
     box-sizing: border-box;
 }
 
+.section-3 .s-3_info {
+    outline: 1px solid red;
+}
+
+.section-3 .s-3_info > li .card {
+    outline: 1px solid black;
+}
+
 .section-3 .s-3_info > li .img-box {
     width: auto;
     height: calc(100vh - 136px); 
@@ -730,7 +738,7 @@ img {
 .section-3 .s-3_info > li > .text-box {
     width: 43%; 
     padding-left: 5%;
-  transition: opacity 0.3s linear;
+    transition: opacity 0.3s linear;
 }
 
 .section-3 .s-3_info > li > .text-box > h2 {
@@ -745,6 +753,7 @@ img {
     margin-top: 40px;
     word-break: keep-all;
 }
+
 
 @media screen and (min-width: 960px ) {
     .section-3 {
